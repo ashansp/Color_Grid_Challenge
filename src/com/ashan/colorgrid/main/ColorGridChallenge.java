@@ -11,35 +11,38 @@ import com.ashan.colorgrid.model.ColorNode;
  */
 public class ColorGridChallenge {
 
-	static int n = 0;
-	static int m = 0;
+	static int gridXValue = 0;
+	static int gridYValue = 0;
 	
 	static Color[] colorArray = { Color.RED, Color.BLUE, Color.GREEN, Color.ORANGE, Color.YELLOW };
 	static String[] colorNameArr = {"R", "B", "G", "O", "Y"};
 
-	// stores information about which cell
-	// are already visited in a particular BFS
+	// this array will be used to store all visited nodes when performing the BFS
 	static int visited[][];
 
-	// result stores the final result grid
+	// this array will store the final resulting grid
 	static ColorNode result[][];
 
-	// stores the count of
-	// cells in the largest
-	// connected component
+	// this variable will used to keep count of the highest traversed nodes
 	static int COUNT;
 
-	// Function checks if a cell
-	// is valid i.e it is inside
-	// the grid and equal to the key
-	static boolean is_valid(int x, int y, Color key, ColorNode gameContext[][]) {
-		if (x < n && y < m && x >= 0 && y >= 0) {
-			if (visited[x][y] == 0 && gameContext[x][y].getColor() == key)
+	/**
+	 * @param x
+	 * @param y
+	 * @param key
+	 * @param gameContext
+	 * @return boolean - if the node is valid (within the grid and if the color is matching)
+	 */
+	static boolean isValid(int x, int y, Color key, ColorNode gameContext[][]) {
+		if (x < gridXValue && y < gridYValue && x >= 0 && y >= 0) {
+			if (visited[x][y] == 0 && gameContext[x][y].getColor() == key) {
 				return true;
-			else
+			} else {
 				return false;
-		} else
+			}
+		} else {
 			return false;
+		}
 	}
 
 	/**
@@ -52,53 +55,44 @@ public class ColorGridChallenge {
 	 * Bread-First-Search to search through graph
 	 */
 	static void search(Color x, Color y, int i, int j, ColorNode gameContext[][]) {
-		// terminating case for BFS
+		
 		if (x != y)
 			return;
 
 		visited[i][j] = 1;
 		COUNT++;
 
-		// x_move and y_move arrays
-		// are the possible movements
-		// in x or y direction
-		int x_move[] = { 0, 0, 1, -1 };
-		int y_move[] = { 1, -1, 0, 0 };
+		// below arrays show the possible movements to reach adjacent nodes
+		int xMove[] = { 0, 0, 1, -1 };
+		int yMove[] = { 1, -1, 0, 0 };
 
-		// checks all four points
-		// connected with input[i][j]
+		// check all adjacent nodes connected to node(i,j)
 		for (int u = 0; u < 4; u++)
-			if ((is_valid(i + y_move[u], j + x_move[u], x, gameContext)) == true)
-				search(x, y, i + y_move[u], j + x_move[u], gameContext);
+			if ((isValid(i + yMove[u], j + xMove[u], x, gameContext)) == true)
+				search(x, y, i + yMove[u], j + xMove[u], gameContext);
 	}
 
-	// called every time before
-	// a BFS so that visited
-	// array is reset to zero
-	static void reset_visited() {
-		for (int i = 0; i < n; i++)
-			for (int j = 0; j < m; j++)
+	/**
+	 * Reset visited array
+	 */
+	static void resetVisitedArray() {
+		for (int i = 0; i < gridXValue; i++)
+			for (int j = 0; j < gridYValue; j++)
 				visited[i][j] = 0;
 	}
 
-	// If a larger connected component
-	// is found this function is
-	// called to store information
-	// about that component.
 	/**
 	 * @param key
 	 * @param gameContext
 	 */
-	static void reset_result(Color key, ColorNode gameContext[][]) {
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
+	static void resetResultsArray(Color key, ColorNode gameContext[][]) {
+		for (int i = 0; i < gridXValue; i++) {
+			for (int j = 0; j < gridYValue; j++) {
 				result[i][j] = gameContext[i][j];
 				
 				if (visited[i][j] == 1 && gameContext[i][j].getColor() == key) {
-					//result[i][j] = visited[i][j];
 					result[i][j].setResult(visited[i][j]);
 				} else {
-					//result[i][j] = 0;
 					result[i][j].setResult(0);
 				}
 			}
@@ -110,11 +104,11 @@ public class ColorGridChallenge {
 	 * 
 	 * this function prints out the result in text form
 	 */
-	static void print_result(int res) {
+	static void printResult(int res) {
 		
 		// prints the whole grid with color codes
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
+		for (int i = 0; i < gridXValue; i++) {
+			for (int j = 0; j < gridYValue; j++) {
 				System.out.print(result[i][j].getColorName() + " ");
 			}
 			System.out.println();
@@ -125,8 +119,8 @@ public class ColorGridChallenge {
 		System.out.println();
 		System.out.println("Nodes forming the largest continuous grid are: ");
 		
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
+		for (int i = 0; i < gridXValue; i++) {
+			for (int j = 0; j < gridYValue; j++) {
 				if (result[i][j].getResult() != 0) {
 					System.out.println("(" + result[i][j].getxPosition() + "," + result[i][j].getyPosition() + ")");
 				}
@@ -135,9 +129,9 @@ public class ColorGridChallenge {
 		
 		System.out.println();
 		
-		// prints the largest component
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
+		// prints the largest component only
+		for (int i = 0; i < gridXValue; i++) {
+			for (int j = 0; j < gridYValue; j++) {
 				if (result[i][j].getResult() != 0)
 					System.out.print(result[i][j].getColorName() + " ");
 				else
@@ -147,40 +141,45 @@ public class ColorGridChallenge {
 		}
 	}
 
-	// function to calculate the
-	// largest connected component
+	/**
+	 * @param gameContext
+	 * 
+	 * calculated largest continuous grid with adjacent searches
+	 */
 	static void calculateContinuousColorGrid(ColorNode gameContext[][]) {
-		int current_max = Integer.MIN_VALUE;
+		int currentMax = Integer.MIN_VALUE;
 
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < m; j++) {
-				reset_visited();
+		for (int i = 0; i < gridXValue; i++) {
+			for (int j = 0; j < gridYValue; j++) {
+				resetVisitedArray();
 				COUNT = 0;
 
 				// checking cell to the right
-				if (j + 1 < m)
+				if (j + 1 < gridYValue) {
 					search(gameContext[i][j].getColor(), gameContext[i][j + 1].getColor(), i, j, gameContext);
-
-				// updating result
-				if (COUNT >= current_max) {
-					current_max = COUNT;
-					reset_result(gameContext[i][j].getColor(), gameContext);
 				}
-				reset_visited();
+
+				// if a large value is found, update the results array
+				if (COUNT >= currentMax) {
+					currentMax = COUNT;
+					resetResultsArray(gameContext[i][j].getColor(), gameContext);
+				}
+				resetVisitedArray();
 				COUNT = 0;
 
 				// checking cell downwards
-				if (i + 1 < n)
+				if (i + 1 < gridXValue) {
 					search(gameContext[i][j].getColor(), gameContext[i + 1][j].getColor(), i, j, gameContext);
+				}
 
-				// updating result
-				if (COUNT >= current_max) {
-					current_max = COUNT;
-					reset_result(gameContext[i][j].getColor(), gameContext);
+				// if a large value is found, update the results array
+				if (COUNT >= currentMax) {
+					currentMax = COUNT;
+					resetResultsArray(gameContext[i][j].getColor(), gameContext);
 				}
 			}
 		}
-		print_result(current_max);
+		printResult(currentMax);
 	}
 
 	/**
@@ -194,11 +193,11 @@ public class ColorGridChallenge {
 		int high = 100;
 		int resultNum = randomGenerator.nextInt(high-low) + low;
 		
-		n = resultNum;
-		m = resultNum;
+		gridXValue = resultNum;
+		gridYValue = resultNum;
 		
-		visited = new int[n][m];
-		result = new ColorNode[n][m];
+		visited = new int[gridXValue][gridYValue];
+		result = new ColorNode[gridXValue][gridYValue];
 		
 		low = 0;
 		high = 4;
